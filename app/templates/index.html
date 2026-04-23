@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+        <h2 class="mb-0 text-dark fw-bold">我的閱讀清單</h2>
+    </div>
+    <div class="col-md-6 text-md-end mt-3 mt-md-0">
+        <!-- 搜尋表單 -->
+        <form action="{{ url_for('notes.index') }}" method="GET" class="d-flex justify-content-md-end">
+            <div class="input-group shadow-sm" style="max-width: 350px;">
+                <input type="text" name="q" class="form-control" placeholder="搜尋書名或內容..." value="{{ search_query }}">
+                <button class="btn btn-primary" type="submit">搜尋</button>
+            </div>
+            {% if search_query %}
+            <a href="{{ url_for('notes.index') }}" class="btn btn-outline-secondary ms-2 shadow-sm">清除</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for note in notes %}
+    <div class="col">
+        <div class="card h-100 shadow-sm border-0 note-card">
+            <div class="card-body">
+                <h5 class="card-title text-primary fw-bold mb-3">{{ note.title }}</h5>
+                <h6 class="card-subtitle mb-3 text-muted small">
+                    評分: 
+                    <span class="text-warning fs-5">
+                        {% for i in range(note.rating) %}★{% endfor %}
+                        {% for i in range(5 - note.rating) %}☆{% endfor %}
+                    </span>
+                </h6>
+                <p class="card-text text-secondary lh-lg">
+                    {{ note.content[:100] + '...' if note.content|length > 100 else note.content }}
+                </p>
+            </div>
+            <div class="card-footer bg-white border-top-0 d-flex justify-content-between align-items-center pb-3">
+                <small class="text-muted">{{ note.created_at[:10] if note.created_at else '' }}</small>
+                <div class="btn-group">
+                    <a href="{{ url_for('notes.edit_note', id=note.id) }}" class="btn btn-sm btn-outline-primary">編輯</a>
+                    <form action="{{ url_for('notes.delete_note', id=note.id) }}" method="POST" class="d-inline" onsubmit="return confirm('確定要刪除這筆筆記嗎？');">
+                        <button type="submit" class="btn btn-sm btn-outline-danger ms-1">刪除</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12 text-center py-5">
+        <div class="text-muted mb-3 opacity-50">
+            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" class="bi bi-journal-x" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M6.146 6.146a.5.5 0 0 1 .708 0L8 7.293l1.146-1.147a.5.5 0 1 1 .708.708L8.707 8l1.147 1.146a.5.5 0 0 1-.708.708L8 8.707 6.854 9.854a.5.5 0 0 1-.708-.708L7.293 8 6.146 6.854a.5.5 0 0 1 0-.708z"/>
+                <path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2z"/>
+                <path d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1z"/>
+            </svg>
+        </div>
+        {% if search_query %}
+            <h4 class="text-secondary fw-bold">找不到符合「{{ search_query }}」的筆記</h4>
+            <p class="text-muted">換個關鍵字試試看吧！</p>
+        {% else %}
+            <h4 class="text-secondary fw-bold">目前還沒有任何筆記喔！</h4>
+            <a href="{{ url_for('notes.new_note') }}" class="btn btn-primary btn-lg mt-3 shadow-sm px-4 rounded-pill">新增第一筆筆記</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
